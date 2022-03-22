@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  BinancePricesTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "binance-prices-topic.fifo"
+      FifoTopic: true
+
+  SQSSubscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      Endpoint: !GetAtt
+        - BinancePricesQueue
+        - Arn
+      Protocol: sqs
+      RawMessageDelivery: true
+      Region: sa-east-1
+      TopicArn: !Ref BinancePricesTopic
+
+  BinancePricesQueue:
+    Type: 'AWS::SQS::Queue'
+    Properties:
+      QueueName: "binance-prices-queue.fifo"
+      FifoQueue: true
+
+  BinancePricesSQSPolicy:
+    Type: 'AWS::SQS::QueuePolicy'
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 'sqs:SendMessage'
+              - 'sqs:ReceiveMessage'
+            Resource:
+              Fn::GetAtt: [BinancePricesQueue, Arn]
+            Condition:
+              ArnEquals:
+                'aws:SourceArn': !Ref BinancePricesTopic
+      Queues:
+        - Ref: BinancePricesQueue

@@ -2,6 +2,7 @@ package com.prices.binance.service;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sns.SnsClient;
@@ -16,11 +17,13 @@ import java.util.UUID;
 @Data
 public class SnsService {
 
+    @Value("${sns.arn}")
     private String topicArn;
+
     private SnsClient snsClient;
 
     public SnsService() {
-        this.topicArn = "arn:aws:sns:sa-east-1:258969145002:binance-prices.fifo";
+        this.topicArn = topicArn;
         this.snsClient = (
                 SnsClient.builder()
                         .region(Region.SA_EAST_1)
