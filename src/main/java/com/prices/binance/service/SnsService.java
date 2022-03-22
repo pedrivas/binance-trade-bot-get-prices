@@ -31,7 +31,7 @@ public class SnsService {
         );
     }
 
-    public void pubTopic(String message) {
+    public PublishResponse pubTopic(String message) {
 
         try {
             PublishRequest request = PublishRequest.builder()
@@ -43,12 +43,14 @@ public class SnsService {
 
             PublishResponse result = snsClient.publish(request);
             log.info(result.messageId() + " Message sent. Status is " + result.sdkHttpResponse().statusCode());
-            snsClient.close();
+
+            return result;
 
         } catch (SnsException e) {
             System.err.println(e.awsErrorDetails().errorMessage());
             System.exit(1);
         }
+        return null;
     }
 
 }
